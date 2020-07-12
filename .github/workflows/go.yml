@@ -38,5 +38,5 @@ jobs:
         path: tetrafour*
 
     - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v1.3
+      uses: SonarSource/sonarcloud-github-action@v1.3
 
