@@ -23,6 +23,9 @@ jobs:
     - name: Get dependencies
       run: |
         go get -v -t -d ./...
+
+    - name: Lint
+      uses: Mushus/golangci-linter@v1
         
     - name: Build
       run: go build -v .
