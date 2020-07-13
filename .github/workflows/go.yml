@@ -53,6 +53,8 @@ jobs:
     # disabled for testing
     #if: github.ref == 'refs/heads/develop'
     steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
       - name: docker build
         run: |
           docker build --tag tetrafour .
