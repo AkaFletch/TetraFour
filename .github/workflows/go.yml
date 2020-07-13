@@ -67,4 +67,4 @@ jobs:
           secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           region: eu-west-2
           local-image: tetrafour
-          image: my-image:dev-${{ github.sha }}
+          image: tetrafour:dev-${{ github.sha }}
