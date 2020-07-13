@@ -1,7 +1,3 @@
 Twitter:
-    ConsumerKey: key
-    ConsumerSecret: secret
-    AccessToken: key 
-    AccessSecret: secret
     # Used for debugging
     # ReadTweet: tweetId
