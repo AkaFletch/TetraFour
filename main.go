@@ -29,7 +29,10 @@ func readConfig() error {
 
 func main() {
 	log.Info().Msg("TetraFour Starting.")
-	readConfig()
+	err := readConfig()
+	if err != nil {
+		log.Fatal().Msgf("Failed to read config: %s", err)
+	}
 	config.Twitter.connect()
 	log.Info().Msg("TetraFour Stopping.")
 }

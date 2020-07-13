@@ -9,10 +9,44 @@ import (
 
 var EmptyCharacter = '◽'
 
+type Tetra int
+
+const (
+	N Tetra = iota
+	Line
+	Block
+	L
+	T
+	J
+	Z
+)
+
+var NextTetra = map[byte]Tetra{
+	byte(0b10110100): N,
+	byte(0b10101010): Line,
+	byte(0b11110000): Block,
+	byte(0b10101100): L,
+	byte(0b10111000): T,
+	byte(0b11101000): J,
+	byte(0b01111000): Z,
+}
+
 type GameState struct {
 	Score int32
 	Board [11]byte
 	Piece [11][7]int8
+}
+
+func (t Tetra) String() string {
+	return [...]string{
+		"N",
+		"Line",
+		"Block",
+		"L",
+		"T",
+		"J",
+		"Z",
+	}[t]
 }
 
 func (state *GameState) printBoard() {
@@ -30,8 +64,30 @@ func ParseTweet(tweet *twitter.Tweet) {
 		state.Board[i] = val
 	}
 	state.printBoard()
+	ParseNextPiece(lines)
 	score := state.ScoreBoard()
 	log.Info().Msgf("Current Scored %d", score)
+}
+
+func ParseNextPiece(board []string) Tetra {
+	madeByte := byte(0)
+	for i, line := range board {
+		if 2 > i || i > 5 {
+			continue
+		}
+		pos := 0
+		// Not using the range postion since unicode chars are multiple bytes
+		for _, char := range line {
+			if pos < 8 || char == EmptyCharacter {
+				pos++
+				continue
+			}
+			madeByte |= byte(128) >> ((i-2)*2 + pos - 8)
+			pos++
+		}
+	}
+	log.Debug().Msgf("Next piece: %s", NextTetra[madeByte].String())
+	return NextTetra[madeByte]
 }
 
 func ParseLine(line string) byte {

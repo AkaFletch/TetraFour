@@ -55,14 +55,14 @@ func (config TwitterConfig) connect() {
 	}
 	stream, err := client.Streams.Filter(filterParams)
 	if err != nil {
-		log.Fatal().Msgf("Twitter", err.Error())
+		log.Fatal().Msgf("Twitter error: %s", err.Error())
 	}
 
 	// Receive messages until stopped or stream quits
 	go demux.HandleChan(stream.Messages)
 
 	// Wait for SIGINT and SIGTERM (HIT CTRL-C)
-	ch := make(chan os.Signal)
+	ch := make(chan os.Signal, 2)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	log.Info().Msgf("Received signal %d", <-ch)
 
