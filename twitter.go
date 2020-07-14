@@ -12,7 +12,8 @@ import (
 )
 
 type TwitterConfig struct {
-	ReadTweet int64 `yaml:"ReadTweet"`
+	ReadTweet int64  `yaml:"ReadTweet"`
+	UserId    string `yaml:"UserId"`
 }
 
 var twitterClient *twitter.Client
@@ -48,7 +49,8 @@ func (config TwitterConfig) connect() {
 
 	// FILTER
 	filterParams := &twitter.StreamFilterParams{
-		Follow:        []string{"842095599100997636"},
+		Follow:        []string{config.UserId},
+		FilterLevel:   "medium",
 		StallWarnings: twitter.Bool(true),
 	}
 	stream, err := twitterClient.Streams.Filter(filterParams)
