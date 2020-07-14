@@ -50,7 +50,6 @@ func (config TwitterConfig) connect() {
 	// FILTER
 	filterParams := &twitter.StreamFilterParams{
 		Follow:        []string{config.UserId},
-		FilterLevel:   "medium",
 		StallWarnings: twitter.Bool(true),
 	}
 	stream, err := twitterClient.Streams.Filter(filterParams)
@@ -73,7 +72,6 @@ func (config TwitterConfig) connect() {
 func GetTweetBefore(lastTweetId int64) *twitter.Tweet {
 	pastTweet, _, _ := twitterClient.Statuses.Show(lastTweetId, nil)
 	if pastTweet.QuotedStatusID != 0 {
-		log.Debug().Msg("Qouted")
 		pastTweet, _, _ = twitterClient.Statuses.Show(pastTweet.QuotedStatusID, nil)
 	}
 	return pastTweet
