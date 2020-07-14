@@ -68,11 +68,6 @@ func (config TwitterConfig) connect() {
 	stream.Stop()
 }
 
-func GetTweet(id int64) *twitter.Tweet {
-	tweet, _, _ := twitterClient.Statuses.Show(id, nil)
-	return tweet
-}
-
 func GetTweetBefore(lastTweetId int64) *twitter.Tweet {
 	pastTweet, _, _ := twitterClient.Statuses.Show(lastTweetId, nil)
 	if pastTweet.QuotedStatusID != 0 {
