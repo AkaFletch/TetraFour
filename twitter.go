@@ -12,18 +12,14 @@ import (
 )
 
 type TwitterConfig struct {
-	ConsumerKey    string `yaml:"ConsumerKey"`
-	ConsumerSecret string `yaml:"ConsumerSecret"`
-	AccessToken    string `yaml:"AccessToken"`
-	AccessSecret   string `yaml:"AccessSecret"`
-	ReadTweet      int64  `yaml:"ReadTweet"`
+	ReadTweet int64 `yaml:"ReadTweet"`
 }
 
 func (config TwitterConfig) connect() {
-	consumerKey := config.ConsumerKey
-	consumerSecret := config.ConsumerSecret
-	accessToken := config.AccessToken
-	accessSecret := config.AccessSecret
+	consumerKey := os.Getenv("TwitterConsumerKey")
+	consumerSecret := os.Getenv("TwitterConsumerSecret")
+	accessToken := os.Getenv("TwitterAccessToken")
+	accessSecret := os.Getenv("TwitterAccessSecret")
 
 	if consumerKey == "" || consumerSecret == "" || accessToken == "" || accessSecret == "" {
 		log.Fatal().Msgf("Twitter: Consumer key/secret and Access token/secret required")
