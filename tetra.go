@@ -60,6 +60,10 @@ func (state *GameState) printBoard() {
 func ParseTweet(tweet *twitter.Tweet) {
 	log.Info().Msg("New Tweet")
 	log.Debug().Msg(tweet.Text)
+	if tweet.User.IDStr == config.Twitter.UserId {
+		log.Debug().Msgf("Ignoring tweet not from %s", config.Twitter.UserId)
+		return
+	}
 	state := TextToBoard(tweet.Text)
 	state.printBoard()
 	state.FindCurrentPiece(tweet)
