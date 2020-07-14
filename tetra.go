@@ -56,7 +56,8 @@ func (state *GameState) printBoard() {
 }
 
 func ParseTweet(tweet *twitter.Tweet) {
-	log.Debug().Msg("New Tweet")
+	log.Info().Msg("New Tweet")
+	log.Debug().Msg(tweet.Text)
 	lines := strings.Split(tweet.Text, "\n")
 	state := GameState{}
 	for i, line := range lines {
