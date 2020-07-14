@@ -32,9 +32,11 @@ var NextTetra = map[byte]Tetra{
 }
 
 type GameState struct {
-	Score int32
-	Board [11]byte
-	Piece [11][7]int8
+	Score            int32
+	Board            [11]byte
+	Piece            [11][7]int8
+	NextPiece        Tetra
+	CurrentPieceType Tetra
 }
 
 func (t Tetra) String() string {
@@ -58,19 +60,16 @@ func (state *GameState) printBoard() {
 func ParseTweet(tweet *twitter.Tweet) {
 	log.Info().Msg("New Tweet")
 	log.Debug().Msg(tweet.Text)
-	lines := strings.Split(tweet.Text, "\n")
-	state := GameState{}
-	for i, line := range lines {
-		val := ParseLine(line)
-		state.Board[i] = val
-	}
+	state := TextToBoard(tweet.Text)
 	state.printBoard()
-	ParseNextPiece(lines)
+	state.FindCurrentPiece(tweet)
 	score := state.ScoreBoard()
 	log.Info().Msgf("Current Scored %d", score)
+	log.Debug().Msgf("Next piece: %s", state.NextPiece.String())
 }
 
-func ParseNextPiece(board []string) Tetra {
+func ParseNextPiece(boardText string) Tetra {
+	board := strings.Split(boardText, "\n")
 	madeByte := byte(0)
 	for i, line := range board {
 		if 2 > i || i > 5 {
@@ -87,7 +86,6 @@ func ParseNextPiece(board []string) Tetra {
 			pos++
 		}
 	}
-	log.Debug().Msgf("Next piece: %s", NextTetra[madeByte].String())
 	return NextTetra[madeByte]
 }
 
@@ -128,4 +126,39 @@ func (board GameState) ScoreBoard() int8 {
 		right += board.ScoreSideways(i, 1)
 	}
 	return left + right
+}
+
+func TextToBoard(text string) GameState {
+	state := GameState{}
+	lines := strings.Split(text, "\n")
+	for i, line := range lines {
+		val := ParseLine(line)
+		state.Board[i] = val
+	}
+	state.NextPiece = ParseNextPiece(text)
+	return state
+}
+
+func (board GameState) FindCurrentPiece(tweet *twitter.Tweet) {
+	// go back until the next piece changes, or a + is on the board
+	lastTweetId := tweet.InReplyToStatusID
+	var pastTweet *twitter.Tweet
+	var nextPieceType Tetra
+	foundCurrent := false
+	for !foundCurrent {
+		pastTweet = GetTweetBefore(lastTweetId)
+		if strings.Contains(pastTweet.Text, "+") {
+			earlierTweet := GetTweetBefore(pastTweet.InReplyToStatusID)
+			earlierBoard := TextToBoard(earlierTweet.Text)
+			nextPieceType = earlierBoard.NextPiece
+			foundCurrent = true
+		}
+		pastBoard := TextToBoard(pastTweet.Text)
+		if pastBoard.NextPiece != board.NextPiece {
+			nextPieceType = pastBoard.NextPiece
+			foundCurrent = true
+		}
+		lastTweetId = pastTweet.InReplyToStatusID
+	}
+	log.Info().Msgf("Current Piece: %s", nextPieceType.String())
 }

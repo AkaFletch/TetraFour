@@ -15,6 +15,8 @@ type TwitterConfig struct {
 	ReadTweet int64 `yaml:"ReadTweet"`
 }
 
+var twitterClient *twitter.Client
+
 func (config TwitterConfig) connect() {
 	consumerKey := os.Getenv("TwitterConsumerKey")
 	consumerSecret := os.Getenv("TwitterConsumerSecret")
@@ -31,9 +33,9 @@ func (config TwitterConfig) connect() {
 	httpClient := authConfig.Client(oauth1.NoContext, token)
 
 	// Twitter Client
-	client := twitter.NewClient(httpClient)
+	twitterClient = twitter.NewClient(httpClient)
 	if config.ReadTweet != 0 {
-		tweet, _, _ := client.Statuses.Show(config.ReadTweet, nil)
+		tweet, _, _ := twitterClient.Statuses.Show(config.ReadTweet, nil)
 		ParseTweet(tweet)
 		return
 	}
@@ -49,7 +51,7 @@ func (config TwitterConfig) connect() {
 		Follow:        []string{"842095599100997636"},
 		StallWarnings: twitter.Bool(true),
 	}
-	stream, err := client.Streams.Filter(filterParams)
+	stream, err := twitterClient.Streams.Filter(filterParams)
 	if err != nil {
 		log.Fatal().Msgf("Twitter error: %s", err.Error())
 	}
@@ -64,4 +66,18 @@ func (config TwitterConfig) connect() {
 
 	log.Info().Msg("Stopping Stream...")
 	stream.Stop()
+}
+
+func GetTweet(id int64) *twitter.Tweet {
+	tweet, _, _ := twitterClient.Statuses.Show(id, nil)
+	return tweet
+}
+
+func GetTweetBefore(lastTweetId int64) *twitter.Tweet {
+	pastTweet, _, _ := twitterClient.Statuses.Show(lastTweetId, nil)
+	if pastTweet.QuotedStatusID != 0 {
+		log.Debug().Msg("Qouted")
+		pastTweet, _, _ = twitterClient.Statuses.Show(pastTweet.QuotedStatusID, nil)
+	}
+	return pastTweet
 }
